@@ -1,6 +1,7 @@
 .env
 datasets/
 unified_dataset/
+sample_grid.jpg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
