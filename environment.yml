@@ -1,0 +1,22 @@
+# Training machine requirements (NOT RPi5)
+# Create environment: conda env create -f requirements_train.txt
+# Activate:           conda activate drone_detection
+
+name: drone_detection
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.10
+  - numpy>=1.24.0
+  - tqdm>=4.66.0
+  - pyyaml>=6.0
+  - opencv>=4.9.0          # conda-forge package (replaces opencv-python)
+  - pytorch>=2.1.0
+  - torchvision>=0.16.0
+  - pytorch-cuda=11.8      # cu118 builds run on CUDA 12.0 drivers
+  - pip
+  - pip:
+    - ultralytics>=8.2.0
