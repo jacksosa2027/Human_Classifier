@@ -2,6 +2,9 @@
 datasets/
 unified_dataset/
 sample_grid.jpg
+output.mp4
+yolo26n.pt
+yolov8n.pt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
