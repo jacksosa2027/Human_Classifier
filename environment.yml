@@ -17,6 +17,7 @@ dependencies:
   - torchvision>=0.16.0
   - pytorch-cuda=11.8      # cu118 builds run on CUDA 12.0 drivers
   - pytest>=8.0.0
+  - rclone
   - pip
   - pip:
     - ultralytics>=8.2.0

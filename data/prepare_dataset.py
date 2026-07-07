@@ -86,7 +86,7 @@ def split_actors(actor_ids: list[str], val_ratio: float, test_ratio: float, seed
     return split_by_actor
 
 
-def process_nomad(root: Path, out: Path, val_ratio: float, test_ratio: float, seed: int):
+def process_nomad(root: Path, out: Path, val_ratio: float, test_ratio: float, seed: int, delete_raw: bool = False):
     images_root = root / "images"
     labels_root = root / "labels"
     if not images_root.exists():
@@ -120,6 +120,13 @@ def process_nomad(root: Path, out: Path, val_ratio: float, test_ratio: float, se
                 dst_lbl.write_text(label)
                 counts[split] += 1
 
+        if delete_raw:
+            shutil.rmtree(actor_dir)
+            raw_labels_dir = labels_root / actor_dir.name
+            if raw_labels_dir.exists():
+                shutil.rmtree(raw_labels_dir)
+            print(f"  Deleted raw: {actor_dir.name}")
+
     return counts
 
 
@@ -144,6 +151,9 @@ def main():
     parser.add_argument("--val-ratio", type=float, default=0.1, help="Fraction of actors held out for validation")
     parser.add_argument("--test-ratio", type=float, default=0.1, help="Fraction of actors held out for testing")
     parser.add_argument("--seed", type=int, default=SEED)
+    parser.add_argument("--delete-raw", action="store_true",
+                        help="Delete each actor's raw NOMAD folder immediately after it is copied, "
+                             "to reclaim disk space. Irreversible — only use if you can re-download.")
     args = parser.parse_args()
 
     if args.val_ratio + args.test_ratio >= 1.0:
@@ -157,7 +167,7 @@ def main():
         raise SystemExit(f"Error: --root '{root}' does not exist.")
     make_dirs(out)
 
-    counts = process_nomad(root, out, args.val_ratio, args.test_ratio, args.seed)
+    counts = process_nomad(root, out, args.val_ratio, args.test_ratio, args.seed, args.delete_raw)
     write_yaml(out)
 
     for split, n in counts.items():
