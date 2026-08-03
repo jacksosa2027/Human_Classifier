@@ -20,15 +20,24 @@ from pathlib import Path
 
 from ultralytics import YOLO
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
 DEFAULTS = dict(
     data="nomad_dataset/dataset.yaml",
     model="yolov8n.pt",       # nano — best for RPi5
     epochs=100,
-    imgsz=416,                # 416 vs 640: ~2x faster on CPU at inference time
+    # 416 was too low-res for this dataset's aerial altitude tiers: at 30m
+    # (a30), median person height is ~5px at imgsz=416 — below YOLO's finest
+    # detection stride (8px) — vs. ~8px at 640. See data/prepare_dataset.py
+    # --altitudes for filtering out tiers that stay sub-pixel even at 640.
+    imgsz=640,
     batch=16,
     workers=4,
     device="cpu",             # set "0" if you have a GPU for training
-    project="runs/train",
+    # Absolute path: Ultralytics resolves relative `project` values against
+    # its own global runs_dir setting, not the cwd, which silently nested
+    # results under $HOME/runs/detect/runs/train instead of the repo.
+    project=str(REPO_ROOT / "runs" / "train"),
     name="nomad_person",
     patience=20,               # early stopping
     lr0=0.01,
@@ -65,9 +74,14 @@ def main():
     model = YOLO(args.model)
     model.train(**{k: getattr(args, k) for k in DEFAULTS if k != "model"})
 
+    # Ultralytics auto-increments args.name (nomad_person, nomad_person2, ...)
+    # if the target dir already exists, so the actual save dir can differ
+    # from `project/name` — read it back from the trainer instead of
+    # reconstructing it, or this message points at the wrong weights.
+    best_weights = model.trainer.save_dir / "weights" / "best.pt"
     print("\nTraining complete. Best weights:")
-    print(f"  {Path(args.project) / args.name / 'weights' / 'best.pt'}")
-    print("\nNext: python training/export.py --weights <path to best.pt>")
+    print(f"  {best_weights}")
+    print(f"\nNext: python training/export.py --weights {best_weights}")
 
 
 if __name__ == "__main__":

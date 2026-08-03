@@ -18,7 +18,7 @@ from ultralytics import YOLO
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--weights", required=True, help="Path to trained best.pt")
-    parser.add_argument("--imgsz", type=int, default=416)
+    parser.add_argument("--imgsz", type=int, default=640)
     parser.add_argument("--format", default="ncnn", choices=["ncnn", "onnx"])
     args = parser.parse_args()
 
@@ -30,7 +30,8 @@ def main():
     exported = model.export(format=args.format, imgsz=args.imgsz)
 
     print(f"\nExported to: {exported}")
-    print("Copy this to the Raspberry Pi 5 and set `model_path` in configs/mission_config.yaml")
+    print("Copy this whole folder to the Raspberry Pi 5 as models/best_ncnn_model — "
+          "configs/mission_config.yaml's detector.model_path already points there by default.")
 
 
 if __name__ == "__main__":
